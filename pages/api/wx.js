@@ -19,6 +19,7 @@ wxApi.interceptors.request.use(
 );
 
 const getSession = async ({ appid, secret, code }) => {
+  const client = await getRedisClient();
   const { status, data } = await wxApi.get("/sns/jscode2session", {
     params: {
       appid,
@@ -27,6 +28,7 @@ const getSession = async ({ appid, secret, code }) => {
       grant_type: "authorization_code",
     },
   });
+  await client.set(data.openid, JSON.stringify(data));
   if (status === 200) {
     return data; // { session_key, openid }
   }
